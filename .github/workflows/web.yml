@@ -1,17 +1,30 @@
 name: Web de BahiaNet
 on:
-  push:
-     branches: [main]
-  pull_request:
-     branches: [main]
-
-permissions:
-  contents: read
-
+ push:
+ branches: [main]
+ pull_request:
+ branches: [main]
+permissions: {}
 jobs:
-  validar:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - name: Comprobar la web
-        run: bash scrpits/comprobar.sh
+ validar:
+ runs-on: ubuntu-latest
+ permissions:
+ contents: read
+ steps:
+ - uses: actions/checkout@v6
+ - run: bash scripts/comprobar.sh
+ - name: Empaquetar sitio
+ if: github.event_name == 'push'
+ uses: actions/upload-pages-artifact@v4
+ with:
+ path: sitio/
+ publicar:
+ needs: validar
+ if: github.event_name == 'push'
+ runs-on: ubuntu-latest
+ permissions:
+ pages: write
+ id-token: write
+ environment: github-pages
+ steps:
+ - uses: actions/deploy-pages@v4 
